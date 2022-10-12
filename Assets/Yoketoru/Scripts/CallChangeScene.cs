@@ -6,14 +6,21 @@ public class CallChangeScene : MonoBehaviour
 {
     ToNextScene toNextScene;
 
+    static float IgnoreKeySeconds => 0.5f;
+    float ignoreTime;
+
     void Start()
     {
         toNextScene = GetComponent<ToNextScene>();
+        ignoreTime = 0;
     }
 
     void Update()
     {
-        if (Input.GetButtonDown("Next"))
+        ignoreTime += Time.deltaTime;
+        if (ignoreTime < IgnoreKeySeconds) return;
+
+        if (Input.GetButtonUp("Next"))
         {
             toNextScene.ChangeScene();
         }
