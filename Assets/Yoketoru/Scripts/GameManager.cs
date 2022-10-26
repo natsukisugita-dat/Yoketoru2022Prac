@@ -20,12 +20,20 @@ public class GameManager : MonoBehaviour
     static int score;
     static float time;
     static float StartTime => 10;
+    static bool clear;
+    static bool gameover;
 
     private void Awake()
     {
+        score = 0;
+        time = StartTime;
+
+        clear = false;
+        gameover = false;
+        Item.ClearCount();
+
         Instance = this;
         ClearScore();
-        time = StartTime;
     }
 
     void Start()
@@ -33,8 +41,16 @@ public class GameManager : MonoBehaviour
         TinyAudio.PlaySE(TinyAudio.SE.Start);
     }
 
-    void Update()
+    void FixedUpdate()
     {
+        time -= Time.fixedDeltaTime;
+        if (time <= 0)
+        {
+            time = 0;
+            ToGameover();
+        }
+        UpdateTimeText();
+
 #if DEBUG_KEY
         if(Input.GetKeyDown(KeyCode.O))
         {
@@ -57,6 +73,11 @@ public class GameManager : MonoBehaviour
         {
             scoreText.text = $"{score:00000}";
         }
+    }
+
+    void UpdateTimeText()
+    {
+        timeText.text = $"{time:0.0}";
     }
 
     public static void AddPoint(int add)
@@ -85,6 +106,25 @@ public class GameManager : MonoBehaviour
         if (Instance != null)
         {
             Instance.UpdateScoreText();
+        }
+    }
+
+    public static void ToClear()
+    {
+        if (clear || gameover) return;
+
+        clear = true;
+        SceneManager.LoadScene("Clear", LoadSceneMode.Additive);
+        Time.timeScale = 0;
+    }
+
+    public static void ToGameover()
+    {
+        if (clear || gameover) return;
+        {
+            gameover = true;
+            SceneManager.LoadScene("Gameover", LoadSceneMode.Additive);
+            Time.timeScale = 0f;
         }
     }
 }
